@@ -12,7 +12,14 @@ COPY package.json .
 
 # 4. install dependencies
 
-RUN npm install
+# RUN npm install
+
+ARG NODE_ENV
+
+RUN if [ "$NODE_ENV" = "development" ]; \
+        then npm install; \
+        else npm install --only=production; \
+        fi
 
 # 5. copy current dir to the container
 
