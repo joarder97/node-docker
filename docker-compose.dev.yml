@@ -12,6 +12,7 @@ services:
       - NODE_ENV=development
       - MONGO_USER=root
       - MONGO_PASSWORD=pwd
+      - SESSION_SECRET=secret
 
     command: npm run dev
 
@@ -21,3 +22,4 @@ services:
         - MONGO_INITDB_ROOT_PASSWORD=pwd
     volumes:
         - mongo-db:/data/db
+

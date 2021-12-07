@@ -1,11 +1,29 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { MONGO_USER, MONGO_PASSWORD, MONGO_IP, MONGO_PORT } = require('./config/config');
+
+const redis = require('redis');
+const session = require('express-session');
+
+let RedisStore = require('connect-redis')(session);
+
+var bodyParser = require('body-parser');
+
+// const cookieParser = require('cookie-parser');
+const { 
+    MONGO_USER, 
+    MONGO_PASSWORD, 
+    MONGO_IP, 
+    MONGO_PORT, 
+    REDIS_URL, 
+    SESSION_SECRET, 
+    REDIS_PORT
+} = require('./config/config');
+
 
 const postRouter = require('./routes/postRoutes');
 const userRouter = require('./routes/userRoutes');
 
-const app = express();
+
 
 const mongoURL = `mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_IP}:${MONGO_PORT}/?authSource=admin`;
 
@@ -24,6 +42,42 @@ const connectWithRetry = () => {
 };
 
 connectWithRetry();
+
+
+const app = express();
+
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+
+// app.set('trust proxy', 1);
+
+let redisClient = redis.createClient({
+    host: REDIS_URL,
+    port: REDIS_PORT,
+});
+
+
+
+app.use(session({
+        store: new RedisStore({client: redisClient}),
+        secret: SESSION_SECRET,
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            resave: false,
+            saveUninitialized: false,   
+            maxAge: 30000000,
+        },
+        // resave: false,
+        // saveUninitialized: false,
+        // cookie: {
+        //     secure: false,
+        //     httpOnly: true,
+        //     maxAge: 30000000,
+        // },
+
+    })
+);
 
 app.use(express.json());
 
