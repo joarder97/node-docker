@@ -7,6 +7,7 @@ const session = require('express-session');
 let RedisStore = require('connect-redis')(session);
 
 var bodyParser = require('body-parser');
+const cors = require('cors');
 
 // const cookieParser = require('cookie-parser');
 const { 
@@ -56,7 +57,8 @@ let redisClient = redis.createClient({
     port: REDIS_PORT,
 });
 
-
+app.enable('trust proxy');
+app.use(cors({}));
 
 app.use(session({
         store: new RedisStore({client: redisClient}),
@@ -82,8 +84,9 @@ app.use(session({
 app.use(express.json());
 
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.send('<h2>Hi there!!!!<h2>');
+    console.log("ok");
 });
 
 app.use("/api/posts", postRouter);
